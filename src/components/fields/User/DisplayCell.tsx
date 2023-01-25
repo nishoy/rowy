@@ -1,6 +1,6 @@
 import { IDisplayCellProps } from "@src/components/fields/types";
-import { Avatar, ButtonBase, Stack } from "@mui/material";
-import { UserOption } from "./EditorCell";
+import { Avatar, AvatarGroup, ButtonBase, Stack } from "@mui/material";
+import { UserDataType } from "./EditorCell";
 import { ChevronDown } from "@src/assets/icons/ChevronDown";
 import { useAtom } from "jotai";
 import { allUsersAtom, projectScope } from "@src/atoms/projectScope";
@@ -13,19 +13,21 @@ export default function User({
 }: IDisplayCellProps) {
   const [users] = useAtom(allUsersAtom, projectScope);
 
-  let userValue;
-  for (const user of users) {
-    if (user.user && user.user?.email === value) {
-      userValue = {
-        displayName: user.user.displayName,
-        photoURL: user.user.photoURL,
-        email: value,
-      } as UserOption;
-      break;
+  let userValue: UserDataType[] = [];
+  let emails = new Set();
+
+  if (value !== undefined) {
+    for (const user of users) {
+      if (user.user && user.user?.email && value.includes(user.user.email)) {
+        if (!emails.has(user.user.email)) {
+          emails.add(user.user.email);
+          userValue.push(user.user);
+        }
+      }
     }
   }
 
-  if (!userValue) {
+  if (userValue.length === 0) {
     return (
       <ButtonBase
         onClick={() => showPopoverCell(true)}
@@ -56,12 +58,27 @@ export default function User({
         paddingLeft: "var(--cell-padding)",
       }}
     >
-      <Avatar
-        alt="Avatar"
-        src={userValue.photoURL}
-        style={{ width: 20, height: 20 }}
-      />
-      <span>{userValue.displayName}</span>
+      {userValue.length > 1 ? (
+        <AvatarGroup
+          sx={{
+            "& .MuiAvatar-root": { width: 24, height: 24, fontSize: 15 },
+          }}
+          max={5}
+        >
+          {userValue.map((user: UserDataType) => (
+            <Avatar alt={user.displayName} src={user.photoURL} />
+          ))}
+        </AvatarGroup>
+      ) : (
+        <>
+          <Avatar
+            alt="Avatar"
+            src={userValue[0].photoURL}
+            style={{ width: 20, height: 20 }}
+          />
+          <span>{userValue[0].displayName}</span>
+        </>
+      )}
     </Stack>
   );
 

@@ -7,16 +7,21 @@ import { projectScope, allUsersAtom } from "@src/atoms/projectScope";
 import { IEditorCellProps } from "@src/components/fields/types";
 
 import { createFilterOptions } from "@mui/material/Autocomplete";
+import { useMemo } from "react";
+// import { sanitiseValue } from "../SingleSelect/utils";
 
-export type UserOption = {
-  displayName: string;
-  photoURL: string;
+export type UserDataType = {
   email: string;
+  displayName?: string;
+  photoURL?: string;
+  phoneNumber?: string;
 };
 
-export interface IUserSelectProps {
-  options?: UserOption[];
-}
+type UserOptionType = {
+  label: string;
+  value: string;
+  user: UserDataType;
+};
 
 export default function UserSelect({
   value,
@@ -28,62 +33,52 @@ export default function UserSelect({
   disabled,
 }: IEditorCellProps) {
   const [users] = useAtom(allUsersAtom, projectScope);
-  let userValue;
-  for (const user of users) {
-    if (user.user && user.user?.email === value) {
-      userValue = {
-        displayName: user.user.displayName,
-        photoURL: user.user.photoURL,
-        email: value,
-      } as UserOption;
-    }
-  }
 
-  let options: { value: string; label: string; user: UserOption }[] = [];
-
-  let emails = new Set();
-  for (const user of users) {
-    if (user.user && user.user?.email) {
-      if (!emails.has(user.user.email)) {
-        emails.add(user.user.email);
-        options.push({
-          label: user.user.email,
-          value: user.user.email,
-          user: {
-            displayName: user.user.displayName,
-            photoURL: user.user.photoURL,
-            email: value,
-          } as UserOption,
-        });
+  const options = useMemo(() => {
+    let options: UserOptionType[] = [];
+    let emails = new Set();
+    for (const user of users) {
+      if (user.user && user.user?.email) {
+        if (!emails.has(user.user.email)) {
+          emails.add(user.user.email);
+          options.push({
+            label: user.user.email,
+            value: user.user.email,
+            user: user.user,
+          });
+        }
       }
     }
-  }
+    return options;
+  }, [users]);
 
   const filterOptions = createFilterOptions({
     trim: true,
     ignoreCase: true,
     matchFrom: "start",
-    stringify: (option: { value: string; label: string; user: UserOption }) =>
-      option.user.displayName,
+    stringify: (option: UserOptionType) => option.user.displayName || "",
   });
 
   const renderOption: AutocompleteProps<
-    any,
-    true,
+    UserOptionType,
     false,
-    any
+    false,
+    false
   >["renderOption"] = (props, option, { selected }) => {
     return <UserListItem user={option.user} {...props} />;
   };
+
   return (
     <MultiSelect
-      value={userValue?.displayName}
+      value={value || []}
       options={options}
       label={column.name}
       labelPlural={column.name}
-      multiple={false}
+      multiple={true}
       onChange={onChange}
       disabled={disabled}
+      clearText="Clear"
+      doneText="Done"
       {...{
         AutocompleteProps: {
           renderOption,
@@ -91,23 +86,20 @@ export default function UserSelect({
         },
       }}
       onClose={() => {
-        showPopoverCell(false);
         onSubmit();
+        showPopoverCell(false);
       }}
-      itemRenderer={(option) => <UserListItem user={option.user} />}
+      // itemRenderer={(option: UserOptionType) => <UserListItem user={option.user} />}
       TextFieldProps={{
         style: { display: "none" },
         SelectProps: {
           open: true,
           MenuProps: {
             anchorEl: parentRef,
-            anchorOrigin: { vertical: "bottom", horizontal: "left" },
-            transformOrigin: { vertical: "top", horizontal: "left" },
+            anchorOrigin: { vertical: "bottom", horizontal: "center" },
+            transformOrigin: { vertical: "top", horizontal: "center" },
             sx: {
-              "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected=true]":
-                {
-                  backgroundColor: "transparent",
-                },
+              "& .MuiPaper-root": { minWidth: `${column.width}px !important` },
             },
           },
         },
@@ -116,7 +108,7 @@ export default function UserSelect({
   );
 }
 
-const UserListItem = ({ user, ...props }: { user: UserOption; sx?: any }) => {
+const UserListItem = ({ user, ...props }: { user: UserDataType }) => {
   return (
     <li {...props}>
       <Box sx={[{ position: "relative" }]}>
@@ -136,7 +128,7 @@ const UserListItem = ({ user, ...props }: { user: UserOption; sx?: any }) => {
               marginRight: "6px",
             }}
           >
-            {user.displayName[0]}
+            {user.displayName ? user.displayName[0] : ""}
           </Avatar>
           <span>{user.displayName}</span>
         </Stack>
