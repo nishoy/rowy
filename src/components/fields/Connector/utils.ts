@@ -11,9 +11,11 @@ export const replacer = (data: any) => (m: string, key: string) => {
   return get(data, objKey, defaultValue);
 };
 
-export const baseFunction = `const connectorFn: Connector = async ({query, row, user}) => {
-  // TODO: Implement your service function here
+export const baseFunction = `const connectorFn: Connector = async ({query, row, user, logging}) => {
+  // WRITE YOUR CODE ONLY BELOW THIS LINE. DO NOT WRITE CODE/COMMENTS OUTSIDE THE FUNCTION BODY
+  
   return [];
+  // WRITE YOUR CODE ONLY ABOVE THIS LINE. DO NOT WRITE CODE/COMMENTS OUTSIDE THE FUNCTION BODY
 };`;
 
 export const getLabel = (config: any, row: TableRow) => {

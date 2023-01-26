@@ -17,16 +17,19 @@ export const webhookStripe = {
     extraLibs: null,
     template: (
       table: TableSettings
-    ) => `const sendgridParser: Parser = async ({ req, db, ref }) => {
-    const event = req.body
-    switch (event.type) {
-        case "payment_intent.succeeded":
-            break;
-        case "payment_intent.payment_failed":
-            break;
-    default:
-      // all other types
-  }
+    ) => `const sendgridParser: Parser = async ({ req, db, ref, logging }) => {
+  // WRITE YOUR CODE ONLY BELOW THIS LINE. DO NOT WRITE CODE/COMMENTS OUTSIDE THE FUNCTION BODY
+  
+  const event = req.body
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      break;
+    case "payment_intent.payment_failed":
+      break;
+  default:
+    // All other types
+  // WRITE YOUR CODE ONLY ABOVE THIS LINE. DO NOT WRITE CODE/COMMENTS OUTSIDE THE FUNCTION BODY
+}
 };`,
   },
   condition: {
@@ -34,9 +37,11 @@ export const webhookStripe = {
     extraLibs: null,
     template: (
       table: TableSettings
-    ) => `const condition: Condition = async({ref,req,db}) => {
-  // feel free to add your own code logic here
+    ) => `const condition: Condition = async({ref, req, db, logging}) => {
+  // WRITE YOUR CODE ONLY BELOW THIS LINE. DO NOT WRITE CODE/COMMENTS OUTSIDE THE FUNCTION BODY
+  
   return true;
+  // WRITE YOUR CODE ONLY ABOVE THIS LINE. DO NOT WRITE CODE/COMMENTS OUTSIDE THE FUNCTION BODY
 }`,
   },
   auth: (
