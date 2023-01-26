@@ -1,6 +1,6 @@
 import { IDisplayCellProps } from "@src/components/fields/types";
-import { Avatar, AvatarGroup, ButtonBase, Stack } from "@mui/material";
-import { UserDataType } from "./EditorCell";
+import { Avatar, AvatarGroup, ButtonBase, Stack, Tooltip } from "@mui/material";
+import { UserDataType } from "./UserSelect";
 import { ChevronDown } from "@src/assets/icons/ChevronDown";
 import { useAtom } from "jotai";
 import { allUsersAtom, projectScope } from "@src/atoms/projectScope";
@@ -61,12 +61,14 @@ export default function User({
       {userValue.length > 1 ? (
         <AvatarGroup
           sx={{
-            "& .MuiAvatar-root": { width: 24, height: 24, fontSize: 15 },
+            "& .MuiAvatar-root": { width: 20, height: 20, fontSize: 12 },
           }}
           max={5}
         >
           {userValue.map((user: UserDataType) => (
-            <Avatar alt={user.displayName} src={user.photoURL} />
+            <Tooltip title={`${user.displayName}(${user.email})`}>
+              <Avatar alt={user.displayName} src={user.photoURL} />
+            </Tooltip>
           ))}
         </AvatarGroup>
       ) : (
